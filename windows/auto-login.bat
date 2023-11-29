@@ -3,8 +3,7 @@
 rem https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
 
 set SUBKEY=HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
-set _ENTRYS=DefaultUserName DefaultPassword AutoAdminLogon
-set EX_OUTPUT=auto-login
+set EX_OUTPUT=%USERPROFILE%\auto-login
 
 set _USERNAME=%~1
 set _PASSWORD=%~2
@@ -15,11 +14,11 @@ if "%_PASSWORD%" == "" set /p PASSWORD=Enter Password:
 
 set ENTRYS=%_ENTRYS%
 
-call :add DefaultUserName REG_SZ "%USERNAME%"
-call :add DefaultPassword REG_SZ "%PASSWORD%"
-call :add AutoAdminLogon REG_SZ 0
+call :add DefaultUserName REG_SZ "%USERNAME%" "%EX_OUTPUT%"
+call :add DefaultPassword REG_SZ "%PASSWORD%" "%EX_OUTPUT%"
+call :add AutoAdminLogon REG_SZ 0 "%EX_OUTPUT%"
 
-if not "%DOMAINNAME%" == "" call :add DefaultDomainName REG_SZ "%DOMAINNAME%"
+if not "%DOMAINNAME%" == "" call :add DefaultDomainName REG_SZ "%DOMAINNAME%" "%EX_OUTPUT%"
 
 echo.
 echo done
