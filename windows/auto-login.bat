@@ -9,16 +9,16 @@ set _USERNAME=%~1
 set _PASSWORD=%~2
 set _DOMAINNAME=%~3
 
-if "%_USERNAME%" == "" set /p USERNAME=Enter Username:
-if "%_PASSWORD%" == "" set /p PASSWORD=Enter Password:
+if "%_USERNAME%" == "" set /p _USERNAME=Enter Username:
+if "%_PASSWORD%" == "" set /p _PASSWORD=Enter Password:
 
 set ENTRYS=%_ENTRYS%
 
-call :reg_add_with_backup "%_SUBKEY%" DefaultUserName REG_SZ "%USERNAME%" "%EX_OUTPUT%"
-call :reg_add_with_backup "%_SUBKEY%" DefaultPassword REG_SZ "%PASSWORD%" "%EX_OUTPUT%"
-call :reg_add_with_backup "%_SUBKEY%" AutoAdminLogon  REG_SZ 0            "%EX_OUTPUT%"
+call :reg_add_with_backup "%_SUBKEY%" AutoAdminLogon  REG_SZ 1            "%EX_OUTPUT%"
+call :reg_add_with_backup "%_SUBKEY%" DefaultUserName REG_SZ "%_USERNAME%" "%EX_OUTPUT%"
+call :reg_add_with_backup "%_SUBKEY%" DefaultPassword REG_SZ "%_PASSWORD%" "%EX_OUTPUT%"
 
-if not "%DOMAINNAME%" == "" call :add DefaultDomainName REG_SZ "%DOMAINNAME%" "%EX_OUTPUT%"
+if not "%_DOMAINNAME%" == "" call :add DefaultDomainName REG_SZ "%_DOMAINNAME%" "%EX_OUTPUT%"
 
 echo.
 echo done
