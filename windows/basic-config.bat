@@ -17,37 +17,37 @@ rem ********           Disable Windows telemetry data                    *******
 
 	echo "" > C:\ProgramData\Microsoft\Diagnosis\ETLLogs\AutoLogger\AutoLogger-Diagtrack-Listener.etl
 
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" AllowTelemetry 0
+	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" AllowTelemetry 0 %0
 	exit /b %errorlevel%
 
 rem ********           Disable Cortana                                   ********
 :cortana_disable
 	echo.
 	echo.Disable Cortana
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" AllowCortana             0
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" AllowSearchToUseLocation 0
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" AllowCortanaAboveLock    0
+	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" AllowCortana             0 %0
+	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" AllowSearchToUseLocation 0 %0
+	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" AllowCortanaAboveLock    0 %0
 	exit /b %errorlevel%
 
 rem ********           Disable Lockscreen                                ********
 :lockscreen_disable
 	echo.
 	echo.Disable Lockscreen
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Personalization" NoLockScreen 1
+	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Personalization" NoLockScreen 1 %0
 	exit /b %errorlevel%
 
 rem ********           RTC in UTC                                        ********
 :rtc_in_utc
 	echo.
 	echo.RTC in UTC
-	call :reg_add_dword "HKLM\SOFTWARE\CurrentControlSet\Control\TimeZoneInformation" RealTimeIsUniversal 1
+	call :reg_add_dword "HKLM\SOFTWARE\CurrentControlSet\Control\TimeZoneInformation" RealTimeIsUniversal 1 %0
 	exit /b %errorlevel%
 
 rem ********           No automatic Windows updates                      ********
 :win_update_auto_disable
 	echo.No automatic Windows updates
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" NoAutoUpdate 0
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" AUOptions 2
+	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" NoAutoUpdate 0 %0
+	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" AUOptions 2 %0
 	exit /b %errorlevel%
 
 rem ********           Delete Windows usage statistics                   ********
@@ -70,8 +70,24 @@ rem ********           Little helper                                     *******
 	set SUBKEY=%~1
 	set VALUE=%~2
 	set DATA=%~3
-	set OUTPUT=%~4
+	set NAME=%~4
 	set TYPE=REG_DWORD
+
+	call :reg_add_with_backup "%SUBKEY%" "%VALUE%" "%TYPE%" "%DATA%" "%NAME%"
+	exit /b %errorlevel%
+
+:reg_add_with_backup
+	set SUBKEY=%~1
+	set VALUE=%~2
+	set TYPE=%~3
+	set DATA=%~4
+	set TMP=%~5
+
+	set NAME=%TMP%
+	if "%NAME:~0,1%" == ":" set NAME=%TMP:~1%
+
+	set OUTPUT=%VALUE%
+	if not "%NAME%" == "" set OUTPUT=%NAME%_%VALUE%
 
 	call :reg_add "%SUBKEY%" "%VALUE%" "%TYPE%" "%DATA%" "%OUTPUT%"
 	exit /b %errorlevel%
@@ -83,24 +99,37 @@ rem ********           Little helper                                     *******
 	set DATA=%~4
 	set OUTPUT=%~5
 
-	if not "%OUTPUT%" == "" call :export "%SUBKEY%\%VALUE%" "%OUTPUT%" || exit /b %errorlevel%
+	if not "%OUTPUT%" == "" call :reg_export "%SUBKEY%" "%VALUE%" "%OUTPUT%" || exit /b %errorlevel%
 
 	reg add "%SUBKEY%" /v "%VALUE%" /t "%TYPE%" /d "%DATA%" /f
 	exit /b %errorlevel%
 
 :reg_export
-	set FULL_ENTRY=%~1
-	set OUTPUT=%~2
+	set SUBKEY=%~1
+	set VALUE=%~2
+	set OUTPUT=%~3
 
-	call :query "%FULL_ENTRY%" || exit /b %errorlevel%
+	call :reg_query "%SUBKEY%" "%VALUE%" || exit /b %errorlevel%
 
-	reg export %FULL_ENTRY%" "%OUTPUT%.reg"
+	set ENTRY=
+	if not "%VALUE%" == "" set ENTRY=/v %VALUE%
+
+	if not exist "%OUTPUT%.reg" reg query "%SUBKEY%" %ENTRY% > "%OUTPUT%.reg"
+
+	rem set FULL_ENTRY=%SUBKEY%
+	rem if not "%VALUE%" == "" set FULL_ENTRY=%SUBKEY%\%VALUE%
+
+	rem reg export "%FULL_ENTRY%" "%OUTPUT%.reg"
 	exit /b %errorlevel%
 
 :reg_query
-	set FULL_ENTRY=%~1
+	set SUBKEY=%~1
+	set VALUE=%~2
 
-	reg query "%FULL_ENTRY%"
+	set ENTRY=
+	if not "%VALUE%" == "" set ENTRY=/v %VALUE%
+
+	reg query "%SUBKEY%" %ENTRY%
 	exit /b %errorlevel%
 
 :dir_del_all
