@@ -4,11 +4,11 @@ set FILE=""
 if not "%~2" == "" set FILE=%~2
 set WINGET=winget
 set SUBCOMMAND=%~1
-set OPTIONS=""
+set OPTIONS=
 
 if not exist "%FILE%" call :error "File '%FILE%' do not exist" || goto :eof
 
-for /f "delims=; eol=#" %%i in (%FILE%) do call :strip "%%i" || goto :eof
+for /f "delims=; eol=#" %%i in (%FILE%) do call :strip "%%i"
 goto :eof
 
 :strip
