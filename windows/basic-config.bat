@@ -24,9 +24,10 @@ rem ********           Disable Cortana                                   *******
 :cortana_disable
 	echo.
 	echo.Disable Cortana
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" AllowCortana             0 %0
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" AllowSearchToUseLocation 0 %0
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" AllowCortanaAboveLock    0 %0
+	set _SUBKEY=HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search
+	call :reg_add_dword "%_SUBKEY%" AllowCortana             0 %0
+	call :reg_add_dword "%_SUBKEY%" AllowSearchToUseLocation 0 %0
+	call :reg_add_dword "%_SUBKEY%" AllowCortanaAboveLock    0 %0
 	exit /b %errorlevel%
 
 rem ********           Disable Lockscreen                                ********
@@ -46,8 +47,9 @@ rem ********           RTC in UTC                                        *******
 rem ********           No automatic Windows updates                      ********
 :win_update_auto_disable
 	echo.No automatic Windows updates
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" NoAutoUpdate 0 %0
-	call :reg_add_dword "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" AUOptions 2 %0
+	set _SUBKEY=HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU
+	call :reg_add_dword "%_SUBKEY%" NoAutoUpdate 0 %0
+	call :reg_add_dword "%_SUBKEY%" AUOptions 2 %0
 	exit /b %errorlevel%
 
 rem ********           Delete Windows usage statistics                   ********
